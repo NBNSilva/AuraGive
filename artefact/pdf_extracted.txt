@@ -1,0 +1,630 @@
+=== PAGE 1 ===
+ 
+ 
+Student Name: N. Benul Nethmitha Silva 
+ 
+Student Number: 2641622 
+ 
+Module Code: 6CS007 
+ 
+Module Name: Project and Professionalism 
+ 
+Project Title: AI-Based Donation Transparency Platform Using 
+Blockchain 
+ 
+Module Leader Name: Mr. Dhishan Dhammearatchi 
+ 
+Supervisor Name: Ms. Eshandi Aththanayake 
+ 
+Reader Name: Mr. Harindu Mansaka 
+ 
+Submission Date: 26/07/2026 
+(The date you handed in the assessment) 
+ 
+Award Title: BSc (Hons) Computer Science (Software Engineering) 
+(Award Title for your project, if in doubt refer to your course/Module Registration) 
+ 
+ 
+ 
+ 
+ 
+
+
+=== PAGE 2 ===
+Declaration 
+ 
+Presented in partial fulfilment of the assessment requirements for the above award.  
+ 
+This work or any part thereof has not previously been presented in any form to the University or to any 
+other institutional body whether for assessment or for other purposes. Save for any express 
+acknowledgements, references and/or bibliographies cited in the work, I confirm that the intellectual 
+contents of the work are the result of my own efforts and of no other person. 
+ 
+It is acknowledged that the author of any project work shall own the copyright. However, by submitting 
+such copyright work for assessment, the author grants to the University a perpetual royalty-free license 
+to do all or any of those things referred to in section 16(i) of the Copyright Designs and Patents Act 
+1988 (viz: to copy work; to issue copies to the public; to perform or show or play the work in public; to 
+broadcast the work or to make an adaptation of the work). 
+ 
+Signature of the Student:  
+ 
+Date: 26/07/2026 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+=== PAGE 3 ===
+Table of Contents 
+4.1 Academic Findings ........................................................................................................................... 4 
+4.2 Sample Code ..................................................................................................................................... 6 
+4.2.1 MetaMask Wallet Connection ................................................................................................... 6 
+4.2.2 Persistent Dark Mode with localStorage .................................................................................... 6 
+4.2.3 Donation Confirmation and Transaction State Update .............................................................. 7 
+4.2.4 AI Trust Score Hover Tooltip with Breakdown ......................................................................... 7 
+4.2.5 Admin Milestone Validation Before Submission ...................................................................... 8 
+4.2.6 Clickable Blockchain TX Hash --> Polygonscan ...................................................................... 8 
+4.3 Test Cases ......................................................................................................................................... 9 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+=== PAGE 4 ===
+Chapter 04 - Artifact 
+This chapter presents the key artifacts produced during the development of the AuraGive platform. It 
+covers the academic findings derived from the research and development process, the exact locations 
+of selected source code within the codebase, and a consolidated test case table used to validate the 
+platform's functionality. 
+ 
+4.1 Academic Findings 
+ 
+The development and research conducted for AuraGive produced several significant 
+academic findings at the intersection of blockchain technology, natural language processing, 
+and trust engineering in the charitable sector. These findings are presented below. 
+ 
+Finding 1 - The Trust Gap Is Structural, Not Incidental 
+ 
+The analysis revealed that the lack of donor trust in existing charitable platforms is not merely a 
+perception problem but is embedded in the fundamental architecture of those platforms. Centralised 
+fund custody creates an inherent single point of failure for transparency. No amount of reporting can 
+fully replicate the cryptographic guarantees offered by a publicly auditable smart contract. This 
+validated the core architectural decision of AuraGive: replacing centralised custody with a 
+decentralised milestone escrow model on the Polygon blockchain. 
+ 
+ 
+ 
+Finding 2 - NLP Is Effective for Pre-Publication Campaign Fraud Detection 
+ 
+Natural Language Processing can serve as a scalable, objective first-line filter for fraudulent charity 
+campaigns. Fraudulent campaigns frequently exhibit identifiable linguistic features including 
+excessive urgency cues, vague fund usage descriptions, and an absence of concrete logistical details. 
+By training a classifier on a curated Kaggle dataset, AuraGive demonstrated that an NLP model can 
+assign a meaningful Trust Score before a campaign reaches the public. This shifts fraud detection 
+from the individual donor (reactive) to an automated system (proactive). 
+ 
+ 
+ 
+Finding 3 - Milestone-Based Escrow Aligns Donor and NGO Incentives 
+ 
+When funds are locked and released only upon completion of defined milestones, both parties benefit. 
+Donors are assured their contributions are not irrevocably surrendered at the moment of donation, and 
+NGOs are incentivised to execute campaigns in the structured, phased manner they described during 
+application. The smart contract effectively makes the campaign's own stated plan a binding 
+commitment rather than a persuasive document. 
+ 
+ 
+ 
+
+
+=== PAGE 5 ===
+Finding 4 - Polygon Is Appropriate for Charitable Micro Donation Platforms 
+ 
+Testing confirmed that Ethereum mainnet gas fees would render small donations economically 
+unviable, as transaction costs could approach the donation amount itself. The Polygon network, with 
+dramatically lower gas costs and comparable security via proof-of-stake consensus, was confirmed as 
+the appropriate choice for a charitable micro-donation platform targeting Sri Lankan donors. The 
+Amoy testnet provided an identical development environment at zero cost. 
+ 
+ 
+ 
+Finding 5 - Dark Mode Persistence Requires Root-Level State Management 
+ 
+Managing UI preferences such as dark/light mode at the component level causes the preference to 
+reset on every page navigation in a React single-page application. This finding led to the decision to 
+lift the isDark state to the root App component and synchronise it with the browser's localStorage 
+API, ensuring consistent cross-page persistence. This is a broadly applicable finding for any React 
+application requiring persistent UI preferences. 
+ 
+ 
+ 
+Finding 6 - AI Score Explainability Increases Donor Confidence 
+ 
+User testing revealed that displaying only a numerical Trust Score was insufficient to build donor 
+confidence. When accompanied by a plain-language breakdown (e.g., 'Text Analysis: Passed', 
+'Identity: Verified via NGO Registry'), testers reported significantly higher trust in the score's validity. 
+This finding underscores the importance of explainability in AI systems deployed in high-stakes 
+social contexts an explained score is perceived as credible, while a score without explanation is 
+perceived as arbitrary. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+=== PAGE 6 ===
+4.2 Sample Code 
+ 
+The following code excerpts are selected from the AuraGive codebase to illustrate the key technical 
+implementations described throughout this report. Each excerpt is accompanied by an explanation of 
+its purpose and significance. 
+ 
+4.2.1 MetaMask Wallet Connection 
+ 
+This function uses the ethers.js v6 BrowserProvider to wrap the browser's injected window.ethereum 
+object and request the user's account addresses. The first connected address is stored in global React 
+state. If MetaMask is not detected, an alert guides the user to install it. 
+ 
+ 
+ 
+ 
+4.2.2 Persistent Dark Mode with localStorage 
+ 
+The isDark state is initialized with a lazy function reading the saved 'theme' value from localStorage, 
+ensuring the correct theme is applied on the very first render. A useEffect hook synchronises any 
+changes back to localStorage, making the preference survive page reloads and cross-page navigation. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+=== PAGE 7 ===
+4.2.3 Donation Confirmation and Transaction State Update 
+ 
+On donation confirmation, a new transaction object is constructed with the campaign title, amount 
+(formatted to 2 decimal places), today's ISO date, a 'Confirmed' status, and a simulated 40-character 
+blockchain hash. It is prepended to the global transactions array and the user is redirected to the 
+Transactions page. 
+ 
+ 
+ 
+ 
+ 
+4.2.4 AI Trust Score Hover Tooltip with Breakdown 
+ 
+The trust badge is colour-coded based on the numeric score range. A sibling div with CSS group-
+hover utility classes is hidden by default (opacity-0 invisible) and becomes visible when the user 
+hovers over the badge. The scoreBreakdown string is split on sentence boundaries and rendered as 
+individual list items inside the tooltip. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+=== PAGE 8 ===
+4.2.5 Admin Milestone Validation Before Submission 
+ 
+Before submitting a campaign, four sequential validations are performed: wallet connection check, 
+description minimum-length check (50 characters), document upload check, and a milestone total vs. 
+funding goal equality check. If any condition fails, submission is halted with a descriptive alert and 
+the function returns early. 
+ 
+ 
+ 
+ 
+4.2.6 Clickable Blockchain TX Hash --> Polygonscan 
+ 
+Each transaction hash is wrapped in an anchor tag whose href is dynamically constructed as 
+https://amoy.polygonscan.com/tx/[hash]. The target='_blank' and rel='noreferrer' attributes open the 
+link in a new tab securely. The hash is truncated for display, showing the first 10 and last 8 characters. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+=== PAGE 9 ===
+4.3 Test Cases 
+ 
+The following table consolidates all 20 test cases executed to validate the AuraGive platform. Test cases 
+cover functional unit tests, integration tests, and end-to-end system tests across all major modules. 
+ 
+TC ID 
+Test Case 
+Title 
+Module 
+Type 
+Test Steps 
+Expected Result 
+Status 
+TC-01 
+Successful 
+User Sign In 
+Auth - 
+Donor 
+Unit 
+1. Enter valid 
+email & 
+password. 
+ 
+2. Click Sign In. 
+Dashboard loads 
+successfully. 
+PASS 
+TC-02 
+Sign In with 
+Empty 
+Fields 
+Auth - 
+Donor 
+Unit (–ve) 
+1. Leave both 
+fields empty. 
+ 
+2. Click Sign In. 
+Alert shown; form does 
+not submit. 
+PASS 
+TC-03 
+Connect 
+Wallet from 
+Explore 
+Page 
+Wallet - 
+Navbar 
+Integration 
+1. Click Connect 
+in navbar. 
+ 
+2. Approve 
+MetaMask 
+popup. 
+Wallet badge shows 
+truncated address. 
+PASS 
+TC-04 
+Connect 
+Wallet from 
+Transactions 
+Page 
+Wallet - 
+Navbar 
+Integration 
+1. Navigate to 
+Transactions. 
+ 
+2. Click Connect. 
+ 
+3. Approve 
+MetaMask. 
+Wallet persists after 
+navigating back to 
+Explore. 
+PASS 
+TC-05 
+Wallet 
+Dropdown 
+& 
+Disconnect 
+Wallet - 
+Dropdo
+wn 
+Unit 
+1. Click wallet 
+badge. 
+ 
+2. Observe 
+balance. 
+ 
+3. Click 
+Disconnect. 
+Dropdown shows 
+USDC/MATIC; 
+disconnect clears state. 
+PASS 
+TC-06 
+Dark Mode 
+Persists 
+Across 
+Pages 
+Theme 
+Toggle 
+System 
+1. Enable dark 
+mode on 
+Explore. 
+ 
+2. Navigate to 
+Transactions and 
+Detail pages. 
+Dark mode remains on 
+all pages; no flash. 
+PASS 
+TC-07 
+Dark Mode 
+Survives 
+Reload 
+Theme - 
+localStor
+age 
+Unit 
+1. Enable dark 
+mode. 
+ 
+2. Reload the 
+browser (F5). 
+Dark mode restored 
+immediately from 
+localStorage. 
+PASS 
+
+
+=== PAGE 10 ===
+TC-08 
+Search Filter 
+by Title 
+Explore 
+- Search 
+Unit 
+1. Type 'water' 
+into the search 
+bar. 
+Only Clean Water 
+Initiative shown; count = 
+1. 
+PASS 
+TC-09 
+Filter by 
+Location 
+Explore 
+- Filter 
+Unit 
+1. Select 'Kandy' 
+from Location 
+dropdown. 
+Only Kandy campaigns 
+displayed; count updates. 
+PASS 
+TC-10 
+Navigate to 
+Campaign 
+Detail 
+Campaig
+n Cards 
+Integration 
+1. Click a 
+campaign card. 
+Routes to /campaign/:id 
+with correct data. 
+PASS 
+TC-11 
+Trust Score 
+Tooltip on 
+Hover 
+Detail - 
+Trust 
+Badge 
+Unit 
+1. Hover over the 
+AI Trust Score 
+badge. 
+Tooltip appears with 
+breakdown (e.g. 'Text 
+Analysis: Passed'). 
+PASS 
+TC-12 
+Donate 
+Without 
+Wallet 
+Detail - 
+Donate 
+Btn 
+Unit (–ve) 
+1. Click Donate 
+Now (no wallet 
+connected). 
+Alert prompts wallet 
+connection; modal stays 
+closed. 
+PASS 
+TC-13 
+Donation 
+Modal 
+Opens 
+Detail - 
+Modal 
+Unit 
+1. Connect 
+wallet. 
+ 
+2. Click Donate 
+Now. 
+Modal opens with 
+campaign title and 
+amount input. 
+PASS 
+TC-14 
+Invalid 
+Donation 
+Amount 
+Modal - 
+Validati
+on 
+Unit (–ve) 
+1. Leave amount 
+empty; click 
+Confirm. 
+ 
+2. Enter -10;  
+click Confirm. 
+Button disabled for 
+empty & negative 
+values. 
+PASS 
+TC-15 
+Successful 
+Donation → 
+TX Record 
+Donatio
+n Flow 
+System 
+1. Enter 50 in 
+modal. 
+ 
+2. Click Confirm 
+Donation. 
+Success alert; redirected 
+to Transactions; new row 
+appears with correct data 
+and Polygonscan link. 
+PASS 
+TC-16 
+Submit with 
+Short 
+Description 
+Admin - 
+Form 
+Unit (–ve) 
+1. Enter 
+description < 50 
+chars. 
+ 
+2. Click Submit. 
+Alert: description too 
+short; form blocked. 
+PASS 
+TC-17 
+Mismatched 
+Milestone 
+Total 
+Admin - 
+Mileston
+es 
+Unit (–ve) 
+1. Set goal = 
+10000, milestone 
+= 5000. 
+ 
+2. Click Submit. 
+Alert shows mismatch; 
+submission blocked. 
+PASS 
+TC-18 
+Full 
+Successful 
+Campaign 
+Submission 
+Admin - 
+Submit 
+System 
+1. Fill all fields 
+validly. 
+ 
+2. Click Submit 
+& Request AI 
+Review. 
+Campaign appears in 
+Pending Review with AI 
+Trust Score (85–99%). 
+PASS 
+
+
+=== PAGE 11 ===
+TC-19 
+TX Hash 
+Links to 
+Polygonscan 
+Transact
+ions - 
+Hash 
+Integration 
+1. Navigate to 
+Transactions. 
+ 
+2. Click a 
+transaction hash. 
+New tab opens to 
+amoy.polygonscan.com/t
+x/[hash]. 
+PASS 
+TC-20 
+Empty 
+Transactions 
+State 
+Transact
+ions - 
+Empty 
+Unit 
+1. Navigate to 
+Transactions 
+with no records. 
+Empty-state message 
+displayed in table body. 
+PASS 
+ 
+ 
+
+
